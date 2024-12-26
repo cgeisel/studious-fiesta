@@ -56,6 +56,9 @@ class Laser(pygame.sprite.Sprite):
         self.rect.centery -= 400 * dt
         if self.rect.bottom < 0:
             self.kill()
+        collision_sprites =  pygame.sprite.spritecollide(self, meteor_sprites, True)
+        if collision_sprites:
+            self.kill()
 
 
 class Meteor(pygame.sprite.Sprite):
