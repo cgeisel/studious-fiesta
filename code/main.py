@@ -6,7 +6,8 @@ from random import randint, uniform
 class Player(pygame.sprite.Sprite):
     def __init__(self, groups):
         super().__init__(groups)
-        self.image = pygame.image.load(join('images', 'player.png')).convert_alpha()
+        self.original_surf = pygame.image.load(join('images', 'player.png')).convert_alpha()
+        self.image = self.original_surf
         self.rect = self.image.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
         self.direction = pygame.math.Vector2()
         self.player_speed = 300
@@ -71,16 +72,22 @@ class Laser(pygame.sprite.Sprite):
 class Meteor(pygame.sprite.Sprite):
     def __init__(self, surf, pos, groups):
         super().__init__(groups)
-        self.image = surf
+        self.original_surf = surf
+        self.image = self.original_surf
         self.rect = self.image.get_frect(center = pos)
         self.life_time = 2000
         self.create_time = pygame.time.get_ticks()
         self.direction = pygame.Vector2(uniform(-0.5, 0.5), 1)
         self.speed = randint(400, 500)
+        self.rotate_speed = randint(-100, 100)
+        self.rotation = 0
 
 
     def update(self, dt):
         self.rect.center += self.direction * self.speed * dt
+        self.rotation += self.rotate_speed * dt
+        self.image = pygame.transform.rotozoom(self.original_surf, self.rotation, 1)
+        self.rect = self.image.get_frect(center = self.rect.center)
         current_time = pygame.time.get_ticks()
         if current_time - self.create_time > self.life_time:
             self.kill()
