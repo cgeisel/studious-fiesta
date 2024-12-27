@@ -38,12 +38,12 @@ class Player(pygame.sprite.Sprite):
             self.laser_shoot_time = pygame.time.get_ticks()
             laser_sound.play()
 
-        global running
+        global running, is_game_over
         collision_sprites =  pygame.sprite.spritecollide(self, meteor_sprites, False, pygame.sprite.collide_mask)
         if collision_sprites:
             self.kill()
             AnimatedExplosion(explosion_frames, self.rect.midtop, all_sprites)
-            game_over()
+            is_game_over = True
 
 
         self.laser_timer()
@@ -68,7 +68,9 @@ class Laser(pygame.sprite.Sprite):
         if self.rect.bottom < 0:
             self.kill()
         collision_sprites =  pygame.sprite.spritecollide(self, meteor_sprites, True, pygame.sprite.collide_mask)
+        global score
         if collision_sprites:
+            score += 100
             self.kill()
             AnimatedExplosion(explosion_frames, self.rect.midtop, all_sprites)
 
@@ -114,16 +116,15 @@ class AnimatedExplosion(pygame.sprite.Sprite):
             self.kill()
 
 
-def display_score(score = 0):
+def display_score():
     text_surf = font.render(str(score), True, 'white')
     text_rect = text_surf.get_frect(midbottom = (WINDOW_WIDTH / 2, WINDOW_HEIGHT - 50))
     display_surface.blit(text_surf, text_rect)
     pygame.draw.rect(display_surface, 'white', text_rect.inflate(20, 16).move(0, -8), 5, 10)
 
 def game_over():
-    print('GAME OVER')
     text_surf = font.render('GAME OVER', True, 'white')
-    text_rect = text_surf.get_frect(midbottom = (WINDOW_WIDTH / 2, WINDOW_HEIGHT - 50))
+    text_rect = text_surf.get_frect(midbottom = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
     display_surface.blit(text_surf, text_rect)
     pygame.draw.rect(display_surface, 'white', text_rect.inflate(20, 16).move(0, -8), 5, 10)
     game_music.stop()
@@ -135,6 +136,8 @@ WINDOW_WIDTH, WINDOW_HEIGHT = 1280, 720
 display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Space Shooter")
 running = True
+is_game_over = False
+score = 0
 clock = pygame.time.Clock()
 
 # import
@@ -186,6 +189,11 @@ while running:
     all_sprites.draw(display_surface)
     
     display_score()
+
+    if is_game_over == True:
+        game_over()
+    else:
+        pass
 
     pygame.display.update()
 
